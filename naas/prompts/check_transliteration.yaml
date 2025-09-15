@@ -1,0 +1,42 @@
+# -*- coding: utf-8 -*-
+temperature: 0
+response_format:
+  type: json_schema
+  json_schema:
+    name: check_transliteration
+    strict: true
+    schema:
+      type: object
+      additionalProperties: false
+      properties:
+        scratch:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              letter: { type: string }
+              mapped: { type: string }
+            required: [letter, mapped]
+        right: { type: boolean }
+        correct_transliteration: { type: string }
+        message: { type: string }
+      required: [scratch, right, correct_transliteration, message]
+
+messages:
+  - role: system
+    content: |
+      You are a strict {{language}} transliteration checker.
+      Use ONLY the following mapping (longest match first for multigraphs):
+{{ transliteration_scheme | indent(6) }}
+
+      Rules:
+      1. Normalize {{language}} input to NFC.
+      2. Build a scratch array mapping each {{language}} letter to its Latin equivalent.
+      3. Concatenate the Latin values to compute `correct_transliteration`.
+      4. Set `right = (attempt == correct_transliteration)`.
+      5. Always output ONLY valid JSON matching the schema. No prose.
+
+  - role: user
+    content: |
+      {"word": "{{original}}", "attempt": "{{transliteration}}"}

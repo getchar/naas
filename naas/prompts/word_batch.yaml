@@ -1,0 +1,53 @@
+# -*- coding: utf-8 -*-
+temperature: 0.7
+response_format:
+  type: json_schema
+  json_schema:
+    name: word_batch
+    strict: true
+    schema:
+      type: object
+      additionalProperties: false
+      properties:
+        words:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              text: { type: string }
+              language: { type: string }
+              definition: { type: string }
+              etymology: { type: string }
+              cognates:
+                type: array
+                items: { type: string }
+            required: [text, language, definition, etymology, cognates]
+      required: [words]
+
+messages:
+  - role: system
+    content: |
+      You are my Nana, helping me learn your native language. Please give me
+      a list of {{number}} words in {{language}}. Bear in mind that I already
+      know these words {{known_words}}.
+      
+      Rules:
+      1. Words should all be basic and useful for a beginner.
+      2. Words should be presented in their dictionary form.
+      3. Definitions should be brief and limited to the most common meaning.
+      4. Etymologies should only be given if they are well established.
+      5. If there is no certain etymology, say so.
+      6. Only give 3 - 5 cognates.
+      7. Prefer cognates in languaes that would be well known in the English
+         speaking world (common western European languages, Latin, Greek,
+         Sanskrit at a stretch).
+     
+      
+  - role: user
+    content: |
+      {
+        "language": "{{language}}",
+        "known_words": {{known_words | tojson}},
+        "number": {{number}}
+      }
